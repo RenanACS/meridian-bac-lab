@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meridian</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand" id="brand">Meridian<small id="brandSub"></small></div>
+      <nav class="nav" id="nav">
+        <a href="#dashboard">Dashboard</a>
+        <a href="#records" data-term="recordPlural">Records</a>
+        <a href="#documents" data-term="document">Documents</a>
+        <a href="#team" data-term="team">Team</a>
+        <a href="#settings">Settings</a>
+        <a href="#missions">★ Missions</a>
+      </nav>
+    </aside>
+    <div class="main">
+      <div class="topbar">
+        <div id="crumb">Dashboard</div>
+        <div class="who">Signed in as <b id="whoName">…</b> · <span id="whoRole"></span>
+          &nbsp; <a href="#" id="logout">Sign out</a></div>
+      </div>
+      <div class="content" id="view">Loading…</div>
+    </div>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>

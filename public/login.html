@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="login-wrap">
+    <form class="login-card" id="loginForm">
+      <h1 id="brand">Meridian</h1>
+      <p class="tag" id="tag">Loading…</p>
+      <label for="email">Work email</label>
+      <input id="email" type="email" autocomplete="username" value="" />
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" value="" />
+      <button class="full" type="submit">Sign in</button>
+      <div class="err" id="err"></div>
+      <div class="hintbox" id="creds">Demo login is shown in the server console on startup.</div>
+    </form>
+  </div>
+  <script>
+    fetch('/api/meta').then(r => r.json()).then(m => {
+      document.getElementById('brand').textContent = m.brand;
+      document.getElementById('tag').textContent = m.tagline;
+      document.title = 'Sign in · ' + m.brand;
+    });
+    const f = document.getElementById('loginForm');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      document.getElementById('err').textContent = '';
+      const res = await fetch('/api/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value,
+        }),
+      });
+      if (res.ok) { location.href = '/'; }
+      else { document.getElementById('err').textContent = 'Invalid credentials.'; }
+    });
+  </script>
+</body>
+</html>

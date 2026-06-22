@@ -1,0 +1,4 @@
+If you can read this through the /api/files download endpoint, you escaped the
+uploads directory with a path-traversal sequence.
+
+MW{path_traversal_arbitrary_file_read}
