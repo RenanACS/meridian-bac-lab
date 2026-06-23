@@ -50,7 +50,13 @@ app.use((req, res, next) => {
 
 // --- Public metadata (lets the UI theme itself before login) -----------------
 app.get('/api/meta', (req, res) => {
-  res.json({ domain: domain.key, brand: domain.brand, tagline: domain.tagline, terms: domain.terms });
+  // demo login is surfaced to the UI so the player can copy it (localhost lab only)
+  res.json({
+    domain: domain.key, brand: domain.brand,
+    tagline: domain.tagline, taglinePt: domain.taglinePt,
+    terms: domain.terms, termsPt: domain.termsPt,
+    demo: { email: store.alice.email, password: store.alice.password },
+  });
 });
 
 // --- API routes (specific mounts first, generic resource mount last) ---------

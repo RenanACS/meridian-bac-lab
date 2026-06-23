@@ -16,6 +16,12 @@ module.exports = {
     account: 'Account holder',
     team: 'Operators',
   },
+  taglinePt: 'Console de operações para parceiros de banking digital',
+  termsPt: {
+    org: 'Instituição', orgPlural: 'Instituições',
+    record: 'Extrato', recordPlural: 'Extratos', recordPrefix: 'STM',
+    document: 'Documento', account: 'Titular da conta', team: 'Operadores',
+  },
   orgs: [
     { name: 'Northwind Bank', slug: 'northwind', plan: 'enterprise' },
     { name: 'Globex Capital', slug: 'globex', plan: 'growth' },

@@ -16,6 +16,12 @@ module.exports = {
     account: 'Patient',
     team: 'Clinicians',
   },
+  taglinePt: 'Coordenação de cuidados entre clínicas parceiras',
+  termsPt: {
+    org: 'Clínica', orgPlural: 'Clínicas',
+    record: 'Atendimento', recordPlural: 'Atendimentos', recordPrefix: 'ENC',
+    document: 'Laudo', account: 'Paciente', team: 'Profissionais',
+  },
   orgs: [
     { name: 'Cedar Valley Clinic', slug: 'cedar', plan: 'enterprise' },
     { name: 'Globex Health Group', slug: 'globex', plan: 'growth' },

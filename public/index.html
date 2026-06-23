@@ -4,26 +4,43 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Meridian</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
   <div class="shell">
     <aside class="sidebar">
-      <div class="brand" id="brand">Meridian<small id="brandSub"></small></div>
+      <div class="brand-wrap">
+        <span class="dot" id="domainDot"></span>
+        <div class="brand" id="brand">Meridian<small id="brandSub"></small></div>
+      </div>
       <nav class="nav" id="nav">
-        <a href="#dashboard">Dashboard</a>
+        <div class="nav-label" data-i18n="nav.console">Console</div>
+        <a href="#dashboard" data-i18n="nav.dashboard">Dashboard</a>
         <a href="#records" data-term="recordPlural">Records</a>
         <a href="#documents" data-term="document">Documents</a>
         <a href="#team" data-term="team">Team</a>
-        <a href="#settings">Settings</a>
-        <a href="#missions">★ Missions</a>
+        <a href="#settings" data-i18n="nav.settings">Settings</a>
+        <div class="nav-label" data-i18n="nav.range">Range</div>
+        <a href="#missions" class="nav-flag">★ Missions</a>
       </nav>
+      <div class="rail-foot" data-i18n="railFoot">Access-Control Range · localhost</div>
     </aside>
     <div class="main">
       <div class="topbar">
-        <div id="crumb">Dashboard</div>
-        <div class="who">Signed in as <b id="whoName">…</b> · <span id="whoRole"></span>
-          &nbsp; <a href="#" id="logout">Sign out</a></div>
+        <div class="crumb-wrap"><span class="crumb-tick"></span><span id="crumb">Dashboard</span></div>
+        <div class="who">
+          <span class="who-id"><span data-i18n="signedInAs">Signed in as</span> <b id="whoName">…</b><span class="role-chip" id="whoRole"></span></span>
+          <button class="lang-btn" id="langBtn" type="button">🌐 EN</button>
+          <button class="cred-btn" id="credBtn" type="button">🔑 Credentials</button>
+          <a href="#" id="logout" class="signout" data-i18n="signOut">Sign out</a>
+          <div class="cred-pop" id="credPop" hidden>
+            <div class="cred-pop-title" data-i18n="yourDemoLogin">Your demo login</div>
+            <div class="cred-row"><span class="cred-k" data-i18n="email">Email</span><code id="credEmail">…</code><button class="cred-copy" data-copy="credEmail" data-i18n="copy" type="button">Copy</button></div>
+            <div class="cred-row"><span class="cred-k" data-i18n="pass">Pass</span><code id="credPass">…</code><button class="cred-copy" data-copy="credPass" data-i18n="copy" type="button">Copy</button></div>
+          </div>
+        </div>
       </div>
       <div class="content" id="view">Loading…</div>
     </div>

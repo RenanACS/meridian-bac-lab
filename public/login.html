@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sign in</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -11,21 +13,41 @@
     <form class="login-card" id="loginForm">
       <h1 id="brand">Meridian</h1>
       <p class="tag" id="tag">Loading…</p>
-      <label for="email">Work email</label>
+      <label for="email" data-i18n="workEmail">Work email</label>
       <input id="email" type="email" autocomplete="username" value="" />
-      <label for="password">Password</label>
+      <label for="password" data-i18n="password">Password</label>
       <input id="password" type="password" autocomplete="current-password" value="" />
-      <button class="full" type="submit">Sign in</button>
+      <button class="full" type="submit" data-i18n="signIn">Sign in</button>
       <div class="err" id="err"></div>
-      <div class="hintbox" id="creds">Demo login is shown in the server console on startup.</div>
+      <div class="hintbox" id="creds"></div>
+      <button type="button" class="lang-link" id="langBtn">🌐 PT</button>
     </form>
   </div>
   <script>
-    fetch('/api/meta').then(r => r.json()).then(m => {
+    const L = {
+      en: { workEmail: 'Work email', password: 'Password', signIn: 'Sign in', demo: 'Demo login', invalid: 'Invalid credentials.' },
+      pt: { workEmail: 'E-mail de trabalho', password: 'Senha', signIn: 'Entrar', demo: 'Login de demonstração', invalid: 'Credenciais inválidas.' },
+    };
+    let lang = (localStorage.getItem('meridian_lang') === 'pt') ? 'pt' : 'en';
+    let META = null;
+    const tr = (k) => (L[lang] && L[lang][k]) || L.en[k];
+    function applyLang() {
+      document.querySelectorAll('[data-i18n]').forEach((e) => { e.textContent = tr(e.dataset.i18n); });
+      document.getElementById('langBtn').textContent = '🌐 ' + lang.toUpperCase();
+      if (META) {
+        document.getElementById('tag').textContent = (lang === 'pt' && META.taglinePt) ? META.taglinePt : META.tagline;
+        if (META.demo) document.getElementById('creds').innerHTML = tr('demo') + ' &mdash; <b>' + META.demo.email + '</b> / <b>' + META.demo.password + '</b>';
+      }
+    }
+    fetch('/api/meta').then((r) => r.json()).then((m) => {
+      META = m;
+      document.body.dataset.domain = m.domain;
       document.getElementById('brand').textContent = m.brand;
-      document.getElementById('tag').textContent = m.tagline;
       document.title = 'Sign in · ' + m.brand;
+      if (m.demo) { document.getElementById('email').value = m.demo.email; document.getElementById('password').value = m.demo.password; }
+      applyLang();
     });
+    document.getElementById('langBtn').onclick = () => { lang = (lang === 'en') ? 'pt' : 'en'; localStorage.setItem('meridian_lang', lang); applyLang(); };
     const f = document.getElementById('loginForm');
     f.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -38,7 +60,7 @@
         }),
       });
       if (res.ok) { location.href = '/'; }
-      else { document.getElementById('err').textContent = 'Invalid credentials.'; }
+      else { document.getElementById('err').textContent = tr('invalid'); }
     });
   </script>
 </body>

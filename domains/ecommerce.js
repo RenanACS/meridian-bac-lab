@@ -16,6 +16,12 @@ module.exports = {
     account: 'Customer',
     team: 'Staff',
   },
+  taglinePt: 'Painel de pedidos e clientes para lojistas',
+  termsPt: {
+    org: 'Loja', orgPlural: 'Lojas',
+    record: 'Pedido', recordPlural: 'Pedidos', recordPrefix: 'ORD',
+    document: 'Fatura', account: 'Cliente', team: 'Equipe',
+  },
   orgs: [
     { name: 'Acme Outfitters', slug: 'acme', plan: 'enterprise' },
     { name: 'Globex Gadgets', slug: 'globex', plan: 'growth' },
