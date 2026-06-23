@@ -1,81 +1,89 @@
-# Meridian Lab — Broken Access Control & IDOR training
+*Read this in [English](README.en.md).*
 
-A deliberately vulnerable, **domain-pluggable** web app for practicing Broken
-Access Control (OWASP A01) and IDOR the way they actually appear in real
-applications — UUIDs, sequential business references, reversible tokens, header
-quirks, GraphQL, mass assignment — instead of the textbook `/user/123`.
+# Meridian Lab — treino de Broken Access Control & IDOR
 
-> ⚠️ **Intentionally insecure. Run on localhost only.** Never deploy this or
-> expose it to a network. It is a practice target, not production code.
+Um app web deliberadamente vulnerável e **com domínio plugável**, feito para
+treinar Broken Access Control (OWASP A01) e IDOR do jeito que eles realmente
+aparecem em aplicações reais — UUIDs, referências de negócio sequenciais,
+tokens reversíveis, peculiaridades de header, GraphQL, mass assignment —
+em vez do clássico `/user/123` de manual.
 
-## What "domain-pluggable" means
+> ⚠️ **Intencionalmente inseguro. Rode só em localhost.** Nunca implante isso
+> ou exponha numa rede. É um alvo de prática, não código de produção.
 
-One engine, three skins. The access-control flaws are identical; only the
-business objects change, so you learn the *technique* (the thing that transfers
-to real targets), not a specific app.
+## O que significa "domínio plugável"
+
+Um único motor, três skins. As falhas de controle de acesso são idênticas;
+só os objetos de negócio mudam — assim você aprende a *técnica* (o que
+realmente transfere para alvos reais), não um app específico.
 
 ```bash
 npm install
 
-npm run fintech      # NeoBank Console  — statements, account holders
-npm run health       # MedPort Portal   — encounters, patients (PHI)
-npm run ecommerce    # ShopLab Seller   — orders, customers
-# or: MERIDIAN_DOMAIN=health PORT=4000 node server.js
+npm run fintech      # NeoBank Console  — extratos, titulares de conta
+npm run health       # MedPort Portal   — atendimentos, pacientes (PHI)
+npm run ecommerce    # ShopLab Seller   — pedidos, clientes
+# ou: MERIDIAN_DOMAIN=health PORT=4000 node server.js
 ```
 
-Then open **http://localhost:4000** and log in. The exact demo login is printed
-in the server console at startup:
+Depois abra **http://localhost:4000** e faça login. O login de demonstração
+exato é impresso no console do servidor ao iniciar:
 
-| Domain      | Brand           | Login email           | Password        |
-|-------------|-----------------|-----------------------|-----------------|
-| `fintech`   | NeoBank Console | `alice@northwind.test`| `Sunshine2026!` |
-| `health`    | MedPort Portal  | `alice@cedar.test`    | `Sunshine2026!` |
-| `ecommerce` | ShopLab Seller  | `alice@acme.test`     | `Sunshine2026!` |
+| Domínio     | Marca           | E-mail de login        | Senha           |
+|-------------|-----------------|-------------------------|-----------------|
+| `fintech`   | NeoBank Console | `alice@northwind.test`  | `Sunshine2026!` |
+| `health`    | MedPort Portal  | `alice@cedar.test`      | `Sunshine2026!` |
+| `ecommerce` | ShopLab Seller  | `alice@acme.test`       | `Sunshine2026!` |
 
-You start as **Alice**, a low-privilege `member` of the *first* tenant. Two
-other tenants exist (one of them, "Globex", holds the juicy cross-tenant data).
+Você começa como **Alice**, uma `member` de baixo privilégio do *primeiro*
+tenant. Existem outros dois tenants (um deles, "Globex", guarda os dados
+suculentos cross-tenant).
 
-Object vocabulary changes per domain:
+O vocabulário dos objetos muda por domínio:
 
-| Engine concept      | fintech        | health           | ecommerce        |
-|---------------------|----------------|------------------|------------------|
-| billing record      | Statement (STM)| Encounter (ENC)  | Order (ORD)      |
-| account / person    | Account holder | Patient          | Customer         |
-| shared document     | Document       | Report           | Invoice          |
+| Conceito do motor    | fintech         | health            | ecommerce        |
+|-----------------------|-----------------|-------------------|-------------------|
+| registro de cobrança  | Extrato (STM)   | Atendimento (ENC) | Pedido (ORD)      |
+| conta / pessoa        | Titular de conta| Paciente          | Cliente           |
+| documento compartilhado | Documento     | Laudo             | Fatura            |
 
-## How to play
+## Como jogar
 
-1. Browse the app normally — it only ever calls the *intended* endpoints.
-2. Put a proxy in front of your browser (**Burp**) and manipulate the requests.
-3. Each flaw, when exploited, yields a flag `MW{...}`.
-4. Submit flags on the **★ Missions** page (or `POST /api/scoreboard/submit`).
-5. Objectives + hints are in **`MISSIONS.md`**. No walkthrough there.
+1. Navegue pelo app normalmente — ele só chama os endpoints *pretendidos*.
+2. Coloque um proxy na frente do seu navegador (**Burp**) e manipule as requisições.
+3. Cada falha, ao ser explorada, gera uma flag `MW{...}`.
+4. Submeta as flags na página **★ Missões** (ou via `POST /api/scoreboard/submit`).
+5. Objetivos + dicas estão em **`MISSIONS.md`**. Sem walkthrough lá.
 
-> Progress (solved flags) is in-memory and **resets when you restart** the
-> server. Mutations you make (e.g. promoting yourself) also reset on restart.
+> As flags resolvidas persistem entre reinicializações (salvas em
+> `.progress.json`, fora do git). Todo o resto — registros, mutações que você
+> faz (ex: se promover), sessões — fica em memória e reseta ao reiniciar o
+> servidor.
 
-## Stuck?
+## Travou?
 
-There is a sealed **`SOLUTIONS.md`** with full walkthroughs. It is a spoiler —
-open it only when you want the answer. (In tutor mode I won't paste it for you
-unless you explicitly ask.)
+Existe um **`SOLUTIONS.md`** selado com os walkthroughs completos. É spoiler —
+abra só quando quiser a resposta. (No modo tutor eu não colo o conteúdo dele
+no chat a menos que você peça explicitamente.)
 
-## Layout
+## Estrutura
 
 ```
-server.js              wiring + the edge-gateway middleware
+server.js              fiação da app + middleware do gateway de borda
 core/
-  store.js             in-memory seed data (built from the active domain)
-  auth.js              session JWT, unsigned ctx cookie, middlewares
-  challenges.js        flag <-> weakness catalog
+  store.js             dados de seed em memória (montados a partir do domínio ativo)
+  auth.js              JWT de sessão, cookie de contexto não assinado, middlewares
+  challenges.js        catálogo flag <-> falha
+  progress.js          persistência das flags resolvidas (.progress.json)
   routes/              auth, resources (IDOR), admin (vertical/BFLA), graphql, scoreboard
-domains/               fintech.js · health.js · ecommerce.js  (the skins)
-public/                login + single-page UI
-lab-fs/                sandboxed fake filesystem (path-traversal target)
+domains/               fintech.js · health.js · ecommerce.js  (as skins)
+public/                login + UI single-page
+lab-fs/                filesystem falso isolado (alvo de path traversal)
 ```
 
-## Reset / restart
+## Reset / reinício
 
 ```bash
-# Ctrl-C the server, then start again — fresh data, empty scoreboard.
+# Ctrl-C no servidor, depois inicie de novo — dados de seed novos, scoreboard mantido.
+# Para zerar o scoreboard também, apague o .progress.json antes de reiniciar.
 ```

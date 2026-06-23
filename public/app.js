@@ -63,6 +63,9 @@ const I18N = {
   },
 };
 const ROLES_PT = { owner: 'Proprietário', admin: 'Administrador', member: 'Membro', staff: 'Equipe' };
+// Server-side seed values that surface in the UI chrome (not the raw JSON dumps).
+const TITLES_PT = { 'Relationship Manager': 'Gerente de Relacionamento', 'Attending Physician': 'Médico(a) Responsável', 'Store Operator': 'Operador(a) de Loja' };
+const STATUS_PT = { open: 'aberto', closed: 'fechado', pending: 'pendente', approved: 'aprovado' };
 
 let LANG = (localStorage.getItem('meridian_lang') === 'pt') ? 'pt' : 'en';
 const setLang = (l) => { LANG = l; localStorage.setItem('meridian_lang', l); };
@@ -73,6 +76,10 @@ function t(key, vars) {
 }
 const term = (k) => ((LANG === 'pt' && META.termsPt) ? META.termsPt : META.terms)[k];
 const roleLabel = (r) => (LANG === 'pt' && ROLES_PT[r]) ? ROLES_PT[r] : r;
+const titleLabel = (s) => (LANG === 'pt' && TITLES_PT[s]) ? TITLES_PT[s] : s;
+const statusLabel = (s) => (LANG === 'pt' && STATUS_PT[s]) ? STATUS_PT[s] : s;
+// Pick an EN/PT pair coming from the server (challenge texts, activity, …).
+const pick = (en, pt) => (LANG === 'pt' && pt) ? pt : en;
 
 async function boot() {
   META = (await api('GET', '/api/meta')).data;
@@ -157,7 +164,7 @@ async function dashboard() {
       <div class="kv">
         <div class="k">${t('name')}</div><div>${esc(acct.name)}</div>
         <div class="k">${t('email')}</div><div>${esc(acct.email)}</div>
-        <div class="k">${t('accountTitle', { x: esc(term('account')) })}</div><div>${esc(acct.profile.title || '')}</div>
+        <div class="k">${t('accountTitle', { x: esc(term('account')) })}</div><div>${esc(titleLabel(acct.profile.title || ''))}</div>
       </div>
     </div>`;
 }
@@ -175,7 +182,7 @@ async function records() {
       </div>
     </div>
     <div class="card"><table><thead><tr><th>${t('refHdr')}</th><th>${t('counterparty')}</th><th>${t('amount')}</th><th>${t('status')}</th></tr></thead>
-      <tbody>${list.map((r) => `<tr class="click" data-no="${esc(r.no)}"><td>${esc(r.no)}</td><td>${esc(r.counterparty)}</td><td>${esc(r.amount)} ${esc(r.currency)}</td><td><span class="tag-pill">${esc(r.status)}</span></td></tr>`).join('')}</tbody></table></div>
+      <tbody>${list.map((r) => `<tr class="click" data-no="${esc(r.no)}"><td>${esc(r.no)}</td><td>${esc(r.counterparty)}</td><td>${esc(r.amount)} ${esc(r.currency)}</td><td><span class="tag-pill">${esc(statusLabel(r.status))}</span></td></tr>`).join('')}</tbody></table></div>
     <div id="detail"></div>`;
   const open = async (no) => {
     const r = await api('GET', '/api/records/' + encodeURIComponent(no));
@@ -214,7 +221,7 @@ async function team() {
     <h2 class="page">${esc(term('team'))}</h2>
     <div class="card">${teamHtml}</div>
     <div class="card"><h3>${t('recentActivity')}</h3>
-      ${act.map((a) => `<div style="padding:8px 0;border-bottom:1px solid var(--line);font-size:14px"><b>${esc(a.actorName)}</b> ${esc(a.text)} <span class="diff">· ${esc(a.ts)}</span></div>`).join('')}
+      ${act.map((a) => `<div style="padding:8px 0;border-bottom:1px solid var(--line);font-size:14px"><b>${esc(a.actorName)}</b> ${esc(pick(a.text, a.textPt))} <span class="diff">· ${esc(a.ts)}</span></div>`).join('')}
     </div>`;
 }
 
@@ -240,9 +247,9 @@ async function missions() {
   const sb = (await api('GET', '/api/scoreboard')).data;
   const items = sb.challenges.map((c) => `
     <div class="mission ${c.solved ? 'solved' : ''}">
-      <h4>${esc(c.title)} ${c.solved ? `<span class="badge-ok">${t('solved')}</span>` : ''}</h4>
-      <div class="cat">${esc(c.category)}</div>
-      <div class="hint">${t('hint')}: ${esc(c.hint)}</div>
+      <h4>${esc(pick(c.title, c.titlePt))} ${c.solved ? `<span class="badge-ok">${t('solved')}</span>` : ''}</h4>
+      <div class="cat">${esc(pick(c.category, c.categoryPt))}</div>
+      <div class="hint">${t('hint')}: ${esc(pick(c.hint, c.hintPt))}</div>
       <div class="diff">${t('difficulty')}: ${'●'.repeat(c.difficulty)}${'○'.repeat(3 - c.difficulty)}</div>
     </div>`).join('');
   el('view').innerHTML = `
@@ -255,7 +262,7 @@ async function missions() {
     ${items}`;
   el('submitFlag').onclick = async () => {
     const r = await api('POST', '/api/scoreboard/submit', { flag: el('flag').value.trim() });
-    if (r.data && r.data.ok) { el('flagout').innerHTML = `<p class="badge-ok">${t('flagOk', { title: esc(r.data.challenge.title) })}</p>`; setTimeout(missions, 700); }
+    if (r.data && r.data.ok) { el('flagout').innerHTML = `<p class="badge-ok">${t('flagOk', { title: esc(pick(r.data.challenge.title, r.data.challenge.titlePt)) })}</p>`; setTimeout(missions, 700); }
     else { el('flagout').innerHTML = `<p class="err">${t('flagBad')}</p>`; }
   };
 }

@@ -2,6 +2,7 @@
 
 const crypto = require('crypto');
 const { CHALLENGES } = require('./challenges');
+const { loadProgress } = require('./progress');
 
 const flag = (id) => CHALLENGES.find((c) => c.id === id).flag;
 const b64url = (s) => Buffer.from(s, 'utf8').toString('base64url');
@@ -104,11 +105,12 @@ function buildStore(domain) {
   const docByToken = (t) => documents.find((d) => d.token === t);
 
   // --- Activity feed (your tenant's feed leaks a cross-tenant collaborator)
+  const docTermPt = (domain.termsPt ? domain.termsPt.document : domain.terms.document).toLowerCase();
   const activity = [
-    { ts: '2026-06-20T09:12:00Z', actorId: alice.id, actorName: alice.name, text: 'created a draft record' },
+    { ts: '2026-06-20T09:12:00Z', actorId: alice.id, actorName: alice.name, text: 'created a draft record', textPt: 'criou um registro em rascunho' },
     // This entry leaks Bob's UUID into your feed (cross-org collaboration):
-    { ts: '2026-06-21T14:03:00Z', actorId: bob.id, actorName: bob.name, text: `shared a ${domain.terms.document.toLowerCase()} with your team` },
-    { ts: '2026-06-21T16:40:00Z', actorId: users[2].id, actorName: users[2].name, text: 'approved a record' },
+    { ts: '2026-06-21T14:03:00Z', actorId: bob.id, actorName: bob.name, text: `shared a ${domain.terms.document.toLowerCase()} with your team`, textPt: `compartilhou um ${docTermPt} com a sua equipe` },
+    { ts: '2026-06-21T16:40:00Z', actorId: users[2].id, actorName: users[2].name, text: 'approved a record', textPt: 'aprovou um registro' },
   ];
 
   // --- Admin audit log (C09: no authz guard on the endpoint that reads it) -
@@ -128,7 +130,7 @@ function buildStore(domain) {
     auditLogs,
     exports: [],        // populated at runtime (C07)
     notifications: [],
-    solved: new Set(),  // scoreboard progress (resets on restart)
+    solved: loadProgress(),  // scoreboard progress, persisted across restarts
     flags: {
       C04: flag('C04'), C06: flag('C06'), C07: flag('C07'), C08: flag('C08'),
       C10: flag('C10'), C11: flag('C11'), C12: flag('C12'), C13: flag('C13'),

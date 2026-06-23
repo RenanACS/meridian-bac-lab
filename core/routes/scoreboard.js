@@ -2,6 +2,7 @@
 
 const express = require('express');
 const { CHALLENGES, FLAG_TO_CHALLENGE } = require('../challenges');
+const { saveProgress } = require('../progress');
 
 module.exports = function scoreboardRoutes(store) {
   const router = express.Router();
@@ -15,8 +16,9 @@ module.exports = function scoreboardRoutes(store) {
       solvedCount: store.solved.size,
       total: CHALLENGES.length,
       challenges: CHALLENGES.map((c) => ({
-        id: c.id, title: c.title, category: c.category,
-        difficulty: c.difficulty, hint: c.hint, solved: store.solved.has(c.id),
+        id: c.id, title: c.title, category: c.category, hint: c.hint,
+        titlePt: c.titlePt, categoryPt: c.categoryPt, hintPt: c.hintPt,
+        difficulty: c.difficulty, solved: store.solved.has(c.id),
       })),
     });
   });
@@ -28,9 +30,10 @@ module.exports = function scoreboardRoutes(store) {
     if (!challenge) return res.json({ ok: false, message: 'not a valid flag' });
     const firstTime = !store.solved.has(challenge.id);
     store.solved.add(challenge.id);
+    saveProgress(store.solved);
     res.json({
       ok: true, firstTime,
-      challenge: { id: challenge.id, title: challenge.title, category: challenge.category },
+      challenge: { id: challenge.id, title: challenge.title, titlePt: challenge.titlePt, category: challenge.category },
       solvedCount: store.solved.size, total: CHALLENGES.length,
     });
   });
